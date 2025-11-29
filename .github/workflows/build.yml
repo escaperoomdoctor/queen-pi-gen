@@ -45,21 +45,12 @@ jobs:
           restore-keys: |
             pigen-${{ runner.os }}-stage0-
 
-      - name: Show cache debug info
-        run: |
-          echo "🔍 Cache Debug:"
-          echo "Cache hit: ${{ steps.cache_stage0.outputs.cache-hit }}"
-          echo "Cache key: ${{ steps.cache_stage0.outputs.cache-primary-key }}"
-          echo "Cache matched key: ${{ steps.cache_stage0.outputs.cache-matched-key }}"
-
       - name: Build stage0
         if: steps.cache_stage0.outputs.cache-hit != 'true'
-        env:
-          STAGE_LIST: "stage0"
         run: |
           touch ./stage1/SKIP ./stage2/SKIP ./stage3/SKIP ./stage4/SKIP ./stage5/SKIP
           touch ./stage2/SKIP_IMAGES ./stage4/SKIP_IMAGES ./stage5/SKIP_IMAGES
-          sudo ./build.sh
+          ./build.sh
 
       - name: Verify cache will be saved
         if: always()

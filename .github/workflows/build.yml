@@ -53,6 +53,3 @@ jobs:
           touch ./stage1/SKIP ./stage2/SKIP ./stage3/SKIP ./stage4/SKIP ./stage5/SKIP
           touch ./stage2/SKIP_IMAGES ./stage4/SKIP_IMAGES ./stage5/SKIP_IMAGES
           sudo ./build.sh
-
-      - name: Result files
-        run: ls -R work

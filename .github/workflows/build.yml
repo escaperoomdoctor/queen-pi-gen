@@ -38,7 +38,7 @@ jobs:
 
       - name: Cache stage0
         id: cache_stage0
-        uses: actions/cache@v4
+        uses: actions/cache@v3
         with:
           path: ./work
           key: pigen-${{ runner.os }}-stage0-${{ hashFiles('stage0/**', 'config') }}

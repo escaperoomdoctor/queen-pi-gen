@@ -40,7 +40,7 @@ jobs:
         id: cache_stage0
         uses: actions/cache@v4
         with:
-          path: work
+          path: ./work
           key: pigen-stage0-${{ hashFiles('stage0/**') }}
           restore-keys: |
             pigen-stage0-

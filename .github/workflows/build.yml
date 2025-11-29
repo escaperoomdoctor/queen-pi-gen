@@ -11,27 +11,30 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Cache APT dependencies
-        uses: awalsh128/cache-apt-pkgs-action@latest
-        with:
-          packages: |
-            quilt
-            parted
-            qemu-user-static
-            debootstrap
-            zerofree
-            dosfstools
-            e2fsprogs
-            libarchive-tools
-            libcap2-bin
-            grep
-            bc
-            gpg
-            xxd
-            arch-test
-            bmap-tools
-            kmod
-          version: 1.0
+#      - name: Cache APT dependencies
+#        uses: awalsh128/cache-apt-pkgs-action@latest
+#        with:
+#          packages: |
+#            quilt
+#            parted
+#            qemu-user-static
+#            debootstrap
+#            zerofree
+#            dosfstools
+#            e2fsprogs
+#            libarchive-tools
+#            libcap2-bin
+#            grep
+#            bc
+#            gpg
+#            xxd
+#            arch-test
+#            bmap-tools
+#            kmod
+#          version: 1.0
+
+      - name: Install APT dependencies
+        run: sudo apt install -y quilt parted qemu-user-static debootstrap zerofree dosfstools e2fsprogs libarchive-tools libcap2-bin grep bc gpg xxd arch-test bmap-tools kmod
 
       - name: Cache stage0
         id: cache_stage0

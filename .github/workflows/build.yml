@@ -11,6 +11,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Add sudo permissions for tar
+        run: sudo chown root /bin/tar && sudo chmod u+s /bin/tar
+
 #      - name: Cache APT dependencies
 #        uses: awalsh128/cache-apt-pkgs-action@latest
 #        with:
@@ -45,13 +48,6 @@ jobs:
           restore-keys: |
             pigen-${{ runner.os }}-stage0-
 
-      - name: Show cache debug info
-        run: |
-          echo "🔍 Cache Debug:"
-          echo "Cache hit: ${{ steps.cache_stage0.outputs.cache-hit }}"
-          echo "Cache key: ${{ steps.cache_stage0.outputs.cache-primary-key }}"
-          echo "Cache matched key: ${{ steps.cache_stage0.outputs.cache-matched-key }}"
-
       - name: Build stage0
         if: steps.cache_stage0.outputs.cache-hit != 'true'
         env:
@@ -60,10 +56,3 @@ jobs:
           touch ./stage1/SKIP ./stage2/SKIP ./stage3/SKIP ./stage4/SKIP ./stage5/SKIP
           touch ./stage2/SKIP_IMAGES ./stage4/SKIP_IMAGES ./stage5/SKIP_IMAGES
           sudo ./build.sh
-
-      - name: Verify cache will be saved
-        if: always()
-        run: |
-          echo "📦 Work directory status:"
-          find ./work -type d 2>/dev/null | head -5 || echo "No work directory"
-          echo "✅ If work directory exists above, cache WILL be saved"

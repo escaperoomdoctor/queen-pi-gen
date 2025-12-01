@@ -14,45 +14,22 @@ jobs:
       - name: Add sudo permissions for tar
         run: sudo chown root /bin/tar && sudo chmod u+s /bin/tar
 
-#      - name: Cache APT dependencies
-#        uses: awalsh128/cache-apt-pkgs-action@latest
-#        with:
-#          packages: |
-#            quilt
-#            parted
-#            qemu-user-static
-#            debootstrap
-#            zerofree
-#            dosfstools
-#            e2fsprogs
-#            libarchive-tools
-#            libcap2-bin
-#            grep
-#            bc
-#            gpg
-#            xxd
-#            arch-test
-#            bmap-tools
-#            kmod
-#          version: 1.0
-
       - name: Install APT dependencies
         run: sudo apt install -y quilt parted qemu-user-static debootstrap zerofree dosfstools e2fsprogs libarchive-tools libcap2-bin grep bc gpg xxd arch-test bmap-tools kmod
 
-      - name: Cache stage0
-        id: cache_stage0
+      - name: Cache lite system
+        id: cache_lite
         uses: actions/cache@v4
         with:
           path: ./work
-          key: pigen-${{ runner.os }}-stage0-${{ hashFiles('stage0/**', 'config') }}
+          key: pigen-${{ runner.os }}-lite-${{ hashFiles('stage0/**', 'stage1/**', 'stage2/**', 'config') }}
           restore-keys: |
-            pigen-${{ runner.os }}-stage0-
+            pigen-${{ runner.os }}-lite-
 
-      - name: Build stage0
-        if: steps.cache_stage0.outputs.cache-hit != 'true'
-        env:
-          STAGE_LIST: "stage0"
+      - name: Build lite system
+        if: steps.cache_lite.outputs.cache-hit != 'true'
         run: |
-          touch ./stage1/SKIP ./stage2/SKIP ./stage3/SKIP ./stage4/SKIP ./stage5/SKIP
+          echo "IMG_NAME='queenos'" > config
+          touch ./stage3/SKIP ./stage4/SKIP ./stage5/SKIP
           touch ./stage2/SKIP_IMAGES ./stage4/SKIP_IMAGES ./stage5/SKIP_IMAGES
           sudo ./build.sh

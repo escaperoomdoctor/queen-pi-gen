@@ -27,9 +27,26 @@ jobs:
             pigen-${{ runner.os }}-lite-
 
       - name: Build lite system
+        id: build_lite
         if: steps.cache_lite.outputs.cache-hit != 'true'
         run: |
           echo "IMG_NAME='queenos'" > config
           touch ./stage3/SKIP ./stage4/SKIP ./stage5/SKIP
           touch ./stage2/SKIP_IMAGES ./stage4/SKIP_IMAGES ./stage5/SKIP_IMAGES
           sudo ./build.sh
+          echo "Cleanup SKIP files"
+          find ./stage* -name "SKIP*" -print -delete
+
+      - name: Export lite system
+        if: steps.cache_lite.outputs.cache-hit == 'true' || steps.build_lite.outcome == 'success'
+        run: |
+          echo "IMG_NAME='queenos'" > config
+          touch ./stage0/SKIP ./stage1/SKIP ./stage2/SKIP ./stage3/SKIP ./stage4/SKIP ./stage5/SKIP
+          touch ./stage4/SKIP_IMAGES ./stage5/SKIP_IMAGES
+          sudo ./build.sh
+
+      - name: Upload image as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          path: deploy/*.*
+          if-no-files-found: error

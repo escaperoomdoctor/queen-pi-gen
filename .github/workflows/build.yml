@@ -17,33 +17,67 @@ jobs:
       - name: Install APT dependencies
         run: sudo apt install -y quilt parted qemu-user-static debootstrap zerofree dosfstools e2fsprogs libarchive-tools libcap2-bin grep bc gpg xxd arch-test bmap-tools kmod
 
+      - name: Create config
+        run: |
+          cat > config << EOF
+          IMG_NAME='queenos'
+          EOF
+
       - name: Cache lite system
         id: cache_lite
         uses: actions/cache@v4
         with:
-          path: ./work
+          path: ./work/*/stage2
           key: pigen-${{ runner.os }}-lite-${{ hashFiles('stage0/**', 'stage1/**', 'stage2/**', 'config') }}
           restore-keys: |
             pigen-${{ runner.os }}-lite-
+
+      - name: Cache desktop system
+        id: cache_desktop
+        uses: actions/cache@v4
+        with:
+          path: ./work/*/stage4
+          key: pigen-${{ runner.os }}-desktop-${{ hashFiles('stage0/**', 'stage1/**', 'stage2/**', 'stage3/**', 'stage4/**', 'config') }}
+          restore-keys: |
+            pigen-${{ runner.os }}-desktop-
 
       - name: Build lite system
         id: build_lite
         if: steps.cache_lite.outputs.cache-hit != 'true'
         run: |
-          echo "IMG_NAME='queenos'" > config
           touch ./stage3/SKIP ./stage4/SKIP ./stage5/SKIP
           touch ./stage2/SKIP_IMAGES ./stage4/SKIP_IMAGES ./stage5/SKIP_IMAGES
           sudo ./build.sh
           echo "Cleanup SKIP files"
           find ./stage* -name "SKIP*" -print -delete
 
-      - name: Export lite system
+      - name: Build desktop system
+        id: build_desktop
         if: steps.cache_lite.outputs.cache-hit == 'true' || steps.build_lite.outcome == 'success'
         run: |
-          echo "IMG_NAME='queenos'" > config
-          touch ./stage0/SKIP ./stage1/SKIP ./stage2/SKIP ./stage3/SKIP ./stage4/SKIP ./stage5/SKIP
-          touch ./stage4/SKIP_IMAGES ./stage5/SKIP_IMAGES
+          touch ./stage0/SKIP ./stage1/SKIP ./stage2/SKIP ./stage5/SKIP
+          touch ./stage2/SKIP_IMAGES ./stage4/SKIP_IMAGES ./stage5/SKIP_IMAGES
           sudo ./build.sh
+          echo "Cleanup SKIP files"
+          find ./stage* -name "SKIP*" -print -delete
+
+#      - name: Export lite system
+#        if: steps.cache_lite.outputs.cache-hit == 'true' || steps.build_lite.outcome == 'success'
+#        run: |
+#          touch ./stage0/SKIP ./stage1/SKIP ./stage2/SKIP ./stage3/SKIP ./stage4/SKIP ./stage5/SKIP
+#          touch ./stage4/SKIP_IMAGES ./stage5/SKIP_IMAGES
+#          sudo ./build.sh
+#          echo "Cleanup SKIP files"
+#          find ./stage* -name "SKIP*" -print -delete
+
+      - name: Export desktop system
+        if: steps.cache_desktop.outputs.cache-hit == 'true' || steps.build_desktop.outcome == 'success'
+        run: |
+          touch ./stage0/SKIP ./stage1/SKIP ./stage2/SKIP ./stage3/SKIP ./stage4/SKIP ./stage5/SKIP
+          touch ./stage2/SKIP_IMAGES ./stage5/SKIP_IMAGES
+          sudo ./build.sh
+          echo "Cleanup SKIP files"
+          find ./stage* -name "SKIP*" -print -delete
 
       - name: Upload image as artifact
         uses: actions/upload-artifact@v4

@@ -57,7 +57,7 @@ jobs:
           sudo ./build.sh
           echo "Cleanup"
           find ./stage* -name "SKIP*" -print -delete
-          rm -rf ./work/*/stage0 ./work/*/stage1
+          sudo rm -rf ./work/*/stage0 ./work/*/stage1
           
       - name: Save lite system cache
         uses: actions/cache/save@v4
@@ -92,7 +92,7 @@ jobs:
           sudo ./build.sh
           echo "Cleanup"
           find ./stage* -name "SKIP*" -print -delete
-          rm -rf ./work/*/stage2 ./work/*/stage3
+          sudo rm -rf ./work/*/stage2 ./work/*/stage3
 
       - name: Save desktop system cache
         uses: actions/cache/save@v4

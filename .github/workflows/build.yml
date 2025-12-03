@@ -23,43 +23,49 @@ jobs:
           IMG_NAME='queenos'
           EOF
 
-      - name: Cache lite system
-        id: cache_lite
-        uses: actions/cache@v4
-        with:
-          path: ./work/*/stage2
-          key: pigen-${{ runner.os }}-lite-${{ hashFiles('stage0/**', 'stage1/**', 'stage2/**', 'config') }}
-          restore-keys: |
-            pigen-${{ runner.os }}-lite-
+#      - name: Cache lite system
+#        id: cache_lite
+#        uses: actions/cache@v4
+#        with:
+#          path: ./work/*/stage2
+#          key: pigen-${{ runner.os }}-lite-${{ hashFiles('stage0/**', 'stage1/**', 'stage2/**', 'config') }}
+#          restore-keys: |
+#            pigen-${{ runner.os }}-lite-
 
-      - name: Cache desktop system
-        id: cache_desktop
-        uses: actions/cache@v4
+#      - name: Cache desktop system
+#        id: cache_desktop
+#        uses: actions/cache@v4
+#        with:
+#          path: ./work/*/stage4
+#          key: pigen-${{ runner.os }}-desktop-${{ hashFiles('stage0/**', 'stage1/**', 'stage2/**', 'stage3/**', 'stage4/**', 'config') }}
+#          restore-keys: |
+#            pigen-${{ runner.os }}-desktop-
+
+      - name: Restore lite system cache
+        uses: actions/cache/restore@v4
+        id: restore_cache_lite
         with:
-          path: ./work/*/stage4
-          key: pigen-${{ runner.os }}-desktop-${{ hashFiles('stage0/**', 'stage1/**', 'stage2/**', 'stage3/**', 'stage4/**', 'config') }}
-          restore-keys: |
-            pigen-${{ runner.os }}-desktop-
+          path: ./work
+          key: pigen-${{ runner.os }}-lite-${{ hashFiles('stage0/**', 'stage1/**', 'stage2/**', 'config') }}
 
       - name: Build lite system
         id: build_lite
-        if: steps.cache_lite.outputs.cache-hit != 'true'
+        if: steps.restore_cache_lite.outputs.cache-hit != 'true'
         run: |
           touch ./stage3/SKIP ./stage4/SKIP ./stage5/SKIP
           touch ./stage2/SKIP_IMAGES ./stage4/SKIP_IMAGES ./stage5/SKIP_IMAGES
           sudo ./build.sh
-          echo "Cleanup SKIP files"
+          echo "Cleanup"
           find ./stage* -name "SKIP*" -print -delete
-
-      - name: Build desktop system
-        id: build_desktop
-        if: steps.cache_lite.outputs.cache-hit == 'true' || steps.build_lite.outcome == 'success'
-        run: |
-          touch ./stage0/SKIP ./stage1/SKIP ./stage2/SKIP ./stage5/SKIP
-          touch ./stage2/SKIP_IMAGES ./stage4/SKIP_IMAGES ./stage5/SKIP_IMAGES
-          sudo ./build.sh
-          echo "Cleanup SKIP files"
-          find ./stage* -name "SKIP*" -print -delete
+          rm -rf ./work/*/stage0 ./work/*/stage1
+          
+      - name: Save lite system cache
+        uses: actions/cache/save@v4
+        id: save_cache_lite
+        if: steps.restore_cache_lite.outputs.cache-hit != 'true'
+        with:
+          path: ./work
+          key: pigen-${{ runner.os }}-lite-${{ hashFiles('stage0/**', 'stage1/**', 'stage2/**', 'config') }}
 
 #      - name: Export lite system
 #        if: steps.cache_lite.outputs.cache-hit == 'true' || steps.build_lite.outcome == 'success'
@@ -70,13 +76,38 @@ jobs:
 #          echo "Cleanup SKIP files"
 #          find ./stage* -name "SKIP*" -print -delete
 
+      - name: Restore desktop system cache
+        uses: actions/cache/restore@v4
+        id: restore_cache_desktop
+        with:
+          path: ./work
+          key: pigen-${{ runner.os }}-desktop-${{ hashFiles('stage0/**', 'stage1/**', 'stage2/**', 'stage3/**', 'stage4/**', 'config') }}
+
+      - name: Build desktop system
+        id: build_desktop
+        if: steps.restore_cache_desktop.outputs.cache-hit != 'true' && (steps.restore_cache_lite.outputs.cache-hit == 'true' || steps.build_lite.outcome == 'success')
+        run: |
+          touch ./stage0/SKIP ./stage1/SKIP ./stage2/SKIP ./stage5/SKIP
+          touch ./stage2/SKIP_IMAGES ./stage4/SKIP_IMAGES ./stage5/SKIP_IMAGES
+          sudo ./build.sh
+          echo "Cleanup"
+          find ./stage* -name "SKIP*" -print -delete
+          rm -rf ./work/*/stage2 ./work/*/stage3
+
+      - name: Save desktop system cache
+        uses: actions/cache/save@v4
+        id: save_cache_desktop
+        if: steps.restore_cache_desktop.outputs.cache-hit != 'true'
+        with:
+          path: ./work
+          key: pigen-${{ runner.os }}-desktop-${{ hashFiles('stage0/**', 'stage1/**', 'stage2/**', 'stage3/**', 'stage4/**', 'config') }}
+
       - name: Export desktop system
-        if: steps.cache_desktop.outputs.cache-hit == 'true' || steps.build_desktop.outcome == 'success'
         run: |
           touch ./stage0/SKIP ./stage1/SKIP ./stage2/SKIP ./stage3/SKIP ./stage4/SKIP ./stage5/SKIP
           touch ./stage2/SKIP_IMAGES ./stage5/SKIP_IMAGES
           sudo ./build.sh
-          echo "Cleanup SKIP files"
+          echo "Cleanup"
           find ./stage* -name "SKIP*" -print -delete
 
       - name: Upload image as artifact

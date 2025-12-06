@@ -78,8 +78,18 @@ jobs:
       - name: Build and export system
         run: |
           touch ./stage0/SKIP ./stage1/SKIP ./stage2/SKIP ./stage3/SKIP ./stage4/SKIP ./stage5/SKIP
-          touch ./stage2/SKIP_IMAGES ./stage4/SKIP_IMAGES ./stage5/SKIP_IMAGES
+          touch ./stage2/SKIP_IMAGES ./stage4/SKIP_IMAGES ./stage5/SKIP_IMAGES ./stage6/SKIP_IMAGES
           echo "STAGE_LIST='stage0 stage1 stage2 stage3 stage4 stage6'" >> config
+          sudo ./build.sh
+          echo "Cleanup"
+          find ./stage* -name "SKIP*" -print -delete
+          sudo rm -rf ./work/*/stage2 ./work/*/stage4
+
+      - name: Export system
+        run: |
+          touch ./stage0/SKIP ./stage1/SKIP ./stage2/SKIP ./stage3/SKIP ./stage4/SKIP ./stage5/SKIP ./stage6/SKIP
+          touch ./stage2/SKIP_IMAGES ./stage4/SKIP_IMAGES ./stage5/SKIP_IMAGES
+          echo "STAGE_LIST='stage6'" >> config
           sudo ./build.sh
           echo "Cleanup"
           find ./stage* -name "SKIP*" -print -delete

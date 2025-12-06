@@ -6,5 +6,4 @@ on_chroot <<- EOF
   source ~/.bashrc
   nvm install 20
   nvm install 22
-  nvm install 24
 EOF

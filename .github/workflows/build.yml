@@ -15,7 +15,9 @@ jobs:
         run: sudo chown root /bin/tar && sudo chmod u+s /bin/tar
 
       - name: Install APT dependencies
-        run: sudo apt install -y quilt parted qemu-user-static debootstrap zerofree dosfstools e2fsprogs libarchive-tools libcap2-bin grep bc gpg xxd arch-test bmap-tools kmod
+        run: |
+          sudo apt update
+          sudo apt install -y quilt parted qemu-user-static debootstrap zerofree dosfstools e2fsprogs libarchive-tools libcap2-bin grep bc gpg xxd arch-test bmap-tools kmod
 
       - name: Create config
         run: |

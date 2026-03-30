@@ -23,6 +23,15 @@ jobs:
         run: |
           cat > config << EOF
           IMG_NAME='queenos'
+          LOCALE_DEFAULT='en_US.UTF-8'
+          KEYBOARD_KEYMAP='us'
+          KEYBOARD_LAYOUT='English (US)'
+          TIMEZONE_DEFAULT='Etc/UTC'
+          FIRST_USER_NAME='pi'
+          FIRST_USER_PASS='erd'
+          DISABLE_FIRST_BOOT_USER_RENAME='1'
+          WPA_COUNTRY='FR'
+          ENABLE_SSH='1'
           EOF
 
       - name: Restore lite system cache

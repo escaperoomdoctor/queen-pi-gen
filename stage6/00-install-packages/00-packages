@@ -2,5 +2,12 @@ cutecom
 filezilla
 iotop
 mc
-qtbase5-dev
 realvnc-vnc-viewer
+lua5.4
+liblua5.4-dev
+qtbase5-dev
+libqt5multimedia5
+libqt5multimediawidgets5
+qtmultimedia5-dev
+libqt5multimedia5-plugins
+pulseaudio
